@@ -3,12 +3,14 @@
 	Loads the single-file build from this repo the same way the original does.
 ]]
 
-local REPO = "https://raw.githubusercontent.com/permanentlyyy/fluent/main"
-local CACHE = "?v=" .. tostring(os.time())
+-- Pinned to a commit because raw.githubusercontent.com caches the branch path
+-- for a few minutes. Bump the hash (or use "main") when you push changes.
+local REF = "7ac1385"
+local REPO = "https://raw.githubusercontent.com/permanentlyyy/fluent/" .. REF
 
-local Fluent = loadstring(game:HttpGet(REPO .. "/main.lua" .. CACHE))()
-local SaveManager = loadstring(game:HttpGet(REPO .. "/Addons/SaveManager.lua" .. CACHE))()
-local InterfaceManager = loadstring(game:HttpGet(REPO .. "/Addons/InterfaceManager.lua" .. CACHE))()
+local Fluent = loadstring(game:HttpGet(REPO .. "/main.lua"))()
+local SaveManager = loadstring(game:HttpGet(REPO .. "/Addons/SaveManager.lua"))()
+local InterfaceManager = loadstring(game:HttpGet(REPO .. "/Addons/InterfaceManager.lua"))()
 
 local Window = Fluent:CreateWindow({
 	Title = "Fluent " .. Fluent.Version,
