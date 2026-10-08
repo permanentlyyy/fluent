@@ -5,7 +5,7 @@
 
 -- Pinned to a commit because raw.githubusercontent.com caches the branch path
 -- for a few minutes. Bump the hash (or use "main") when you push changes.
-local REF = "ae67db7"
+local REF = "14b905b"
 local REPO = "https://raw.githubusercontent.com/permanentlyyy/fluent/" .. REF
 
 local Fluent = loadstring(game:HttpGet(REPO .. "/main.lua"))()
