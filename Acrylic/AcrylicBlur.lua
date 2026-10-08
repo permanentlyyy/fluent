@@ -23,6 +23,10 @@ local function createAcrylicBlur(distance)
 	end
 
 	local function render()
+		if not model.Parent or not model.Mesh then
+			return
+		end
+
 		local res = game:GetService("Workspace").CurrentCamera
 		if res then
 			res = res.CFrame
