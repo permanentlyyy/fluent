@@ -4875,6 +4875,13 @@ function Library:Notify(Config)
 end
 
 if getgenv then
+	local Previous = getgenv().Fluent
+	if type(Previous) == "table" and Previous ~= Library and type(Previous.Destroy) == "function" then
+		pcall(function()
+			Previous:Destroy()
+		end)
+	end
+
 	getgenv().Fluent = Library
 end
 
