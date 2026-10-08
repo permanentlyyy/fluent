@@ -31,6 +31,10 @@ local Tabs = {
 local Options = Fluent.Options
 
 do
+	-- Sections group elements inside a tab. They're optional: you can also add
+	-- elements straight to the tab like the example originally did.
+	local MainSection = Tabs.Main:AddSection("General")
+
 	Fluent:Notify({
 		Title = "Notification",
 		Content = "This is a notification",
@@ -38,12 +42,12 @@ do
 		Duration = 5, -- Set to nil to make the notification not disappear
 	})
 
-	Tabs.Main:AddParagraph({
+	MainSection:AddParagraph({
 		Title = "Paragraph",
 		Content = "This is a paragraph.\nSecond line!",
 	})
 
-	Tabs.Main:AddButton({
+	MainSection:AddButton({
 		Title = "Button",
 		Description = "Very important button",
 		Callback = function()
@@ -68,7 +72,7 @@ do
 		end,
 	})
 
-	local Toggle = Tabs.Main:AddToggle("MyToggle", { Title = "Toggle", Default = false })
+	local Toggle = MainSection:AddToggle("MyToggle", { Title = "Toggle", Default = false })
 
 	Toggle:OnChanged(function()
 		print("Toggle changed:", Options.MyToggle.Value)
@@ -76,7 +80,7 @@ do
 
 	Options.MyToggle:SetValue(false)
 
-	local Slider = Tabs.Main:AddSlider("Slider", {
+	local Slider = MainSection:AddSlider("Slider", {
 		Title = "Slider",
 		Description = "This is a slider",
 		Default = 2,
@@ -94,7 +98,7 @@ do
 
 	Slider:SetValue(3)
 
-	local Dropdown = Tabs.Main:AddDropdown("Dropdown", {
+	local Dropdown = MainSection:AddDropdown("Dropdown", {
 		Title = "Dropdown",
 		Values = { "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven", "twelve", "thirteen", "fourteen" },
 		Multi = false,
@@ -107,7 +111,7 @@ do
 		print("Dropdown changed:", Value)
 	end)
 
-	local MultiDropdown = Tabs.Main:AddDropdown("MultiDropdown", {
+	local MultiDropdown = MainSection:AddDropdown("MultiDropdown", {
 		Title = "Dropdown",
 		Description = "You can select multiple values.",
 		Values = { "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven", "twelve", "thirteen", "fourteen" },
@@ -129,7 +133,7 @@ do
 		print("Mutlidropdown changed:", table.concat(Values, ", "))
 	end)
 
-	local Colorpicker = Tabs.Main:AddColorpicker("Colorpicker", {
+	local Colorpicker = MainSection:AddColorpicker("Colorpicker", {
 		Title = "Colorpicker",
 		Default = Color3.fromRGB(96, 205, 255),
 	})
@@ -140,7 +144,7 @@ do
 
 	Colorpicker:SetValueRGB(Color3.fromRGB(0, 255, 140))
 
-	local TColorpicker = Tabs.Main:AddColorpicker("TransparencyColorpicker", {
+	local TColorpicker = MainSection:AddColorpicker("TransparencyColorpicker", {
 		Title = "Colorpicker",
 		Description = "but you can change the transparency.",
 		Transparency = 0,
@@ -151,7 +155,7 @@ do
 		print("TColorpicker changed:", TColorpicker.Value, "Transparency:", TColorpicker.Transparency)
 	end)
 
-	local Keybind = Tabs.Main:AddKeybind("Keybind", {
+	local Keybind = MainSection:AddKeybind("Keybind", {
 		Title = "KeyBind",
 		Mode = "Toggle", -- Always, Toggle, Hold
 		Default = "LeftControl", -- String as the name of the keybind (MB1, MB2 for mouse buttons)
@@ -195,7 +199,7 @@ do
 
 	Keybind:SetValue("MB2", "Toggle") -- Sets keybind to MB2, mode to Hold
 
-	local Input = Tabs.Main:AddInput("Input", {
+	local Input = MainSection:AddInput("Input", {
 		Title = "Input",
 		Default = "Default",
 		Placeholder = "Placeholder",
@@ -209,6 +213,20 @@ do
 	Input:OnChanged(function()
 		print("Input updated:", Input.Value)
 	end)
+
+	-- A second section in the same tab.
+	local ExtraSection = Tabs.Main:AddSection("Extra")
+	ExtraSection:AddButton({
+		Title = "Section Button",
+		Description = "This button lives in its own section",
+		Callback = function()
+			print("Section button clicked")
+		end,
+	})
+	ExtraSection:AddParagraph({
+		Title = "Section",
+		Content = "Tabs can hold multiple sections like this.",
+	})
 end
 
 -- Addons:
