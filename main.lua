@@ -1808,6 +1808,15 @@ return function(Config)
 	function Window:Minimize()
 		Window.Minimized = not Window.Minimized
 		Window.Root.Visible = not Window.Minimized
+
+		for _, Option in next, Library.Options do
+			if Option and Option.Type == "Dropdown" and Option.Opened then
+				pcall(function()
+					Option:Close()
+				end)
+			end
+		end
+
 		if not MinimizeNotif then
 			MinimizeNotif = true
 			local Key = Library.MinimizeKeybind and Library.MinimizeKeybind.Value or Library.MinimizeKey.Name
