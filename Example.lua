@@ -214,6 +214,8 @@ do
 		print("Input updated:", Input.Value)
 	end)
 
+	MainSection:AddDivider({})
+
 	-- A second section in the same tab.
 	local ExtraSection = Tabs.Main:AddSection("Extra")
 	ExtraSection:AddButton({
