@@ -1976,38 +1976,6 @@ return function(Config)
 		return TabModule:New(TabConfig.Title, TabConfig.Icon, Window.TabHolder)
 	end
 
-	-- Divider between tabs in the sidebar. Same options as the element divider.
-	function Window:AddTabDivider(Config)
-		Config = Config or {}
-
-		local Height = Config.Height or 1
-		local Inset = Config.Inset or 8
-
-		local Holder = New("Frame", {
-			Name = "TabDivider",
-			Size = UDim2.new(1, 0, 0, Height),
-			BackgroundTransparency = 1,
-			LayoutOrder = Config.LayoutOrder or 0,
-			Parent = Window.TabHolder,
-		}, {
-			New("Frame", {
-				Name = "Line",
-				Size = UDim2.new(1, -(Inset * 2), 0, Height),
-				Position = UDim2.fromOffset(Inset, 0),
-				BackgroundTransparency = Config.Transparency or 0.5,
-				ThemeTag = {
-					BackgroundColor3 = Config.Color or "ElementBorder",
-				},
-			}),
-		})
-
-		if TabModule.SelectedTab and TabModule.SelectedTab > 0 then
-			Window.SelectorPosMotor:setGoal(Instant(TabModule:GetCurrentTabPos()))
-		end
-
-		return Holder
-	end
-
 	function Window:SelectTab(Tab)
 		TabModule:SelectTab(1)
 	end
@@ -2752,44 +2720,6 @@ function Element:New(Idx, Config)
 end
 
 return Element
-
-]===]
-__files["Elements/Divider.lua"] = [===[
-local Root = script.Parent.Parent
-local Creator = require(Root.Creator)
-
-local New = Creator.New
-
-local Divider = {}
-Divider.__index = Divider
-Divider.__type = "Divider"
-
-function Divider:New(Idx, Config)
-	if type(Idx) == "table" then
-		Config = Idx
-	end
-	Config = Config or {}
-
-	local Object = setmetatable({}, Divider)
-
-	local Inset = Config.Inset or 0
-
-	Object.Frame = New("Frame", {
-		Name = "Divider",
-		Size = UDim2.new(1, -(Inset * 2), 0, Config.Height or 1),
-		Position = UDim2.fromOffset(Inset, 0),
-		BackgroundTransparency = Config.Transparency or 0.4,
-		LayoutOrder = 7,
-		Parent = self.Container,
-		ThemeTag = {
-			BackgroundColor3 = Config.Color or "ElementBorder",
-		},
-	})
-
-	return Object
-end
-
-return Divider
 
 ]===]
 __files["Elements/Dropdown.lua"] = [===[

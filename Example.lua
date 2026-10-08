@@ -25,11 +25,8 @@ local Window = Fluent:CreateWindow({
 -- Fluent provides Lucide Icons https://lucide.dev/icons/ for the tabs, icons are optional
 local Tabs = {
 	Main = Window:AddTab({ Title = "Main", Icon = "" }),
+	Settings = Window:AddTab({ Title = "Settings", Icon = "settings" }),
 }
-
-Window:AddTabDivider({})
-
-Tabs.Settings = Window:AddTab({ Title = "Settings", Icon = "settings" })
 
 local Options = Fluent.Options
 
@@ -216,8 +213,6 @@ do
 	Input:OnChanged(function()
 		print("Input updated:", Input.Value)
 	end)
-
-	MainSection:AddDivider({})
 
 	-- A second section in the same tab.
 	local ExtraSection = Tabs.Main:AddSection("Extra")
