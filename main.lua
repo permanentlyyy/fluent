@@ -1522,6 +1522,7 @@ end
 __files["Components/Window.lua"] = [===[
 -- i will rewrite this someday
 local UserInputService = game:GetService("UserInputService")
+local RunService = game:GetService("RunService")
 local Mouse = game:GetService("Players").LocalPlayer:GetMouse()
 local Camera = game:GetService("Workspace").CurrentCamera
 
@@ -1770,13 +1771,14 @@ return function(Config)
 			or Input.UserInputType == Enum.UserInputType.Touch
 		then
 			Dragging = true
-			MousePos = Input.Position
+			MousePos = UserInputService:GetMouseLocation()
 			StartPos = Window.Root.Position
 
 			if Window.Maximized then
+				local MouseLocation = UserInputService:GetMouseLocation()
 				StartPos = UDim2.fromOffset(
-					Mouse.X - (Mouse.X * ((OldSizeX - 100) / Window.Root.AbsoluteSize.X)),
-					Mouse.Y - (Mouse.Y * (OldSizeY / Window.Root.AbsoluteSize.Y))
+					MouseLocation.X - (MouseLocation.X * ((OldSizeX - 100) / Window.Root.AbsoluteSize.X)),
+					MouseLocation.Y - (MouseLocation.Y * (OldSizeY / Window.Root.AbsoluteSize.Y))
 				)
 			end
 
@@ -1788,29 +1790,25 @@ return function(Config)
 		end
 	end)
 
-	Creator.AddSignal(Window.TitleBar.Frame.InputChanged, function(Input)
-		if
-			Input.UserInputType == Enum.UserInputType.MouseMovement
-			or Input.UserInputType == Enum.UserInputType.Touch
-		then
-			DragInput = Input
-		end
-	end)
-
 	Creator.AddSignal(ResizeStartFrame.InputBegan, function(Input)
 		if
 			Input.UserInputType == Enum.UserInputType.MouseButton1
 			or Input.UserInputType == Enum.UserInputType.Touch
 		then
 			Resizing = true
-			ResizePos = Input.Position
+			ResizePos = UserInputService:GetMouseLocation()
 		end
 	end)
 
-	Creator.AddSignal(UserInputService.InputChanged, function(Input)
-		if Input == DragInput and Dragging then
-			local Delta = Input.Position - MousePos
+	-- Drive drag/resize on RenderStepped so the window tracks the cursor 1:1 on
+	-- every rendered frame, instead of only when an InputChanged event arrives.
+	Creator.AddSignal(RunService.RenderStepped, function()
+		if Dragging then
+			local Current = UserInputService:GetMouseLocation()
+			local Delta = Current - MousePos
+
 			Window.Position = UDim2.fromOffset(StartPos.X.Offset + Delta.X, StartPos.Y.Offset + Delta.Y)
+			Window.Root.Position = Window.Position
 			PosMotor:setGoal({
 				X = Instant(Window.Position.X.Offset),
 				Y = Instant(Window.Position.Y.Offset),
@@ -1821,11 +1819,9 @@ return function(Config)
 			end
 		end
 
-		if
-			(Input.UserInputType == Enum.UserInputType.MouseMovement or Input.UserInputType == Enum.UserInputType.Touch)
-			and Resizing
-		then
-			local Delta = Input.Position - ResizePos
+		if Resizing then
+			local Current = UserInputService:GetMouseLocation()
+			local Delta = Current - ResizePos
 			local StartSize = Window.Size
 
 			local TargetSize = Vector3.new(StartSize.X.Offset, StartSize.Y.Offset, 0) + Vector3.new(1, 1, 0) * Delta
