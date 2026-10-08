@@ -147,15 +147,53 @@ function Element:New(Idx, Config)
 	table.insert(Library.OpenFrames, DropdownHolderCanvas)
 
 	local function RecalculateListPosition()
-		local Add = 0
-		if Camera.ViewportSize.Y - DropdownInner.AbsolutePosition.Y < DropdownHolderCanvas.AbsoluteSize.Y - 5 then
-			Add = DropdownHolderCanvas.AbsoluteSize.Y
-				- 5
-				- (Camera.ViewportSize.Y - DropdownInner.AbsolutePosition.Y)
-				+ 40
+		if not DropdownHolderCanvas or not DropdownInner then
+			return
 		end
-		DropdownHolderCanvas.Position =
-			UDim2.fromOffset(DropdownInner.AbsolutePosition.X - 1, DropdownInner.AbsolutePosition.Y - 5 - Add)
+
+		local dropdownX = DropdownInner.AbsolutePosition.X
+		local dropdownY = DropdownInner.AbsolutePosition.Y
+		local canvasWidth = DropdownHolderCanvas.AbsoluteSize.X
+		local canvasHeight = DropdownHolderCanvas.AbsoluteSize.Y
+		local viewportWidth = Camera.ViewportSize.X
+		local viewportHeight = Camera.ViewportSize.Y
+
+		-- Horizontal: keep the list on screen / inside the window.
+		local targetX = dropdownX - 1
+		local Window = Library.Window
+		local windowRoot = Window and Window.Root
+		if windowRoot then
+			local windowX = windowRoot.AbsolutePosition.X
+			local windowRight = windowX + windowRoot.AbsoluteSize.X
+			if targetX + canvasWidth > windowRight then
+				targetX = math.max(windowX + 5, windowRight - canvasWidth - 5)
+			end
+		end
+		if targetX + canvasWidth > viewportWidth - 5 then
+			targetX = math.max(5, viewportWidth - canvasWidth - 5)
+		end
+
+		-- Vertical: open downward when there is room, otherwise flip above the row.
+		local targetY = dropdownY - 5
+		local aboveY = dropdownY - 5 - canvasHeight
+		local fitsBelow = (targetY + canvasHeight) <= (viewportHeight - 5)
+		local fitsAbove = aboveY >= 5
+
+		if not fitsBelow then
+			if fitsAbove then
+				targetY = aboveY
+			else
+				local roomBelow = viewportHeight - (dropdownY - 5)
+				local roomAbove = dropdownY - 5
+				if roomBelow >= roomAbove then
+					targetY = math.max(5, viewportHeight - canvasHeight - 5)
+				else
+					targetY = 5
+				end
+			end
+		end
+
+		DropdownHolderCanvas.Position = UDim2.fromOffset(targetX, targetY)
 	end
 
 	local ListSizeX = 0
