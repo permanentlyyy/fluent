@@ -135,6 +135,34 @@ return function(Config)
 		Window = Window,
 	})
 
+	-- Invisible layer shown while a dropdown is open. It sits above the window
+	-- but below the dropdown list, so the first click outside an open dropdown
+	-- just closes it instead of also activating whatever element was clicked.
+	Window.DropdownBlocker = New("TextButton", {
+		Name = "DropdownBlocker",
+		Size = UDim2.fromScale(1, 1),
+		BackgroundTransparency = 1,
+		Text = "",
+		AutoButtonColor = false,
+		Visible = false,
+		Parent = Config.Parent,
+	})
+
+	Creator.AddSignal(Window.DropdownBlocker.InputBegan, function(Input)
+		if
+			Input.UserInputType == Enum.UserInputType.MouseButton1
+			or Input.UserInputType == Enum.UserInputType.Touch
+		then
+			for _, Option in next, Library.Options do
+				if Option and Option.Type == "Dropdown" and Option.Opened then
+					pcall(function()
+						Option:Close()
+					end)
+				end
+			end
+		end
+	end)
+
 	if require(Root).UseAcrylic then
 		Window.AcrylicPaint.AddParent(Window.Root)
 	end
