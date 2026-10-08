@@ -180,17 +180,51 @@ function Element:New(Idx, Config)
 		Dropdown:Open()
 	end)
 
+	local function IsHovering(Object, X, Y)
+		if not Object then
+			return false
+		end
+		local AbsPos, AbsSize = Object.AbsolutePosition, Object.AbsoluteSize
+		return X >= AbsPos.X and X <= AbsPos.X + AbsSize.X and Y >= AbsPos.Y and Y <= AbsPos.Y + AbsSize.Y
+	end
+
+	-- Frames that toggle the interface (e.g. the minimize button). Clicking one of
+	-- these keeps the dropdown open instead of counting as an outside click.
+	local function GetInterfaceToggleFrames()
+		local Frames = {}
+
+		local Window = Library.Window
+		local TitleBar = Window and Window.TitleBar
+		if TitleBar and TitleBar.MinButton and TitleBar.MinButton.Frame then
+			table.insert(Frames, TitleBar.MinButton.Frame)
+		end
+
+		local Custom = Library.InterfaceToggleButton
+		if typeof(Custom) == "Instance" and Custom:IsA("GuiObject") then
+			table.insert(Frames, Custom)
+		end
+
+		return Frames
+	end
+
 	Creator.AddSignal(UserInputService.InputBegan, function(Input)
 		if
 			Input.UserInputType == Enum.UserInputType.MouseButton1
 			or Input.UserInputType == Enum.UserInputType.Touch
 		then
-			local AbsPos, AbsSize = DropdownHolderFrame.AbsolutePosition, DropdownHolderFrame.AbsoluteSize
+			local MousePos = Input.UserInputType == Enum.UserInputType.Touch
+				and Vector2.new(Input.Position.X, Input.Position.Y)
+				or Vector2.new(Mouse.X, Mouse.Y)
+
+			for _, ToggleFrame in next, GetInterfaceToggleFrames() do
+				if IsHovering(ToggleFrame, MousePos.X, MousePos.Y) then
+					return
+				end
+			end
+
 			if
-				Mouse.X < AbsPos.X
-				or Mouse.X > AbsPos.X + AbsSize.X
-				or Mouse.Y < (AbsPos.Y - 20 - 1)
-				or Mouse.Y > AbsPos.Y + AbsSize.Y
+				not IsHovering(DropdownHolderFrame, MousePos.X, MousePos.Y)
+				and not IsHovering(DropdownInner, MousePos.X, MousePos.Y)
 			then
 				Dropdown:Close()
 			end
