@@ -112,6 +112,7 @@ return function(distance)
 
 	Blur.Frame = comp
 	Blur.Model = model
+	Blur.Folder = BlurFolder
 
 	return Blur
 end

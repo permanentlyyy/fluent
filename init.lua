@@ -147,7 +147,19 @@ function Library:Destroy()
 	if Library.Window then
 		Library.Unloaded = true
 		if Library.UseAcrylic then
-			Library.Window.AcrylicPaint.Model:Destroy()
+			local Paint = Library.Window.AcrylicPaint
+			local Folder = Paint and (Paint.BlurFolder or (Paint.Model and Paint.Model.Parent))
+			if Paint and Paint.Model then
+				pcall(function()
+					Paint.Model:Destroy()
+				end)
+			end
+			if Folder then
+				pcall(function()
+					Folder:Destroy()
+				end)
+			end
+			Acrylic.Destroy()
 		end
 		Creator.Disconnect()
 		Library.GUI:Destroy()

@@ -367,7 +367,19 @@ return function(Config)
 
 	function Window:Destroy()
 		if require(Root).UseAcrylic then
-			Window.AcrylicPaint.Model:Destroy()
+			local Paint = Window.AcrylicPaint
+			local Folder = Paint and (Paint.BlurFolder or (Paint.Model and Paint.Model.Parent))
+			if Paint and Paint.Model then
+				pcall(function()
+					Paint.Model:Destroy()
+				end)
+			end
+			if Folder then
+				pcall(function()
+					Folder:Destroy()
+				end)
+			end
+			Acrylic.Destroy()
 		end
 		Window.Root:Destroy()
 	end

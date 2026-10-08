@@ -111,6 +111,7 @@ return function(props)
 		Blur = AcrylicBlur()
 		Blur.Frame.Parent = AcrylicPaint.Frame
 		AcrylicPaint.Model = Blur.Model
+		AcrylicPaint.BlurFolder = Blur.Folder
 		AcrylicPaint.AddParent = Blur.AddParent
 		AcrylicPaint.SetVisibility = Blur.SetVisibility
 	end
