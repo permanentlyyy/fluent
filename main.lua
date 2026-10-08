@@ -1553,6 +1553,10 @@ return function(Config)
 	}
 
 	local Dragging, DragInput, MousePos, StartPos = false
+	local DragCurrent, DragTarget
+	-- Higher = snappier, lower = smoother. Trades a tiny bit of input lag for
+	-- smoother motion when frame times are uneven.
+	local DRAG_SMOOTHING = 24
 	local Resizing, ResizePos = false
 	local MinimizeNotif = false
 
@@ -1773,6 +1777,8 @@ return function(Config)
 			Dragging = true
 			MousePos = UserInputService:GetMouseLocation()
 			StartPos = Window.Root.Position
+			DragCurrent = Vector2.new(StartPos.X.Offset, StartPos.Y.Offset)
+			DragTarget = DragCurrent
 
 			if Window.Maximized then
 				local MouseLocation = UserInputService:GetMouseLocation()
@@ -1780,11 +1786,21 @@ return function(Config)
 					MouseLocation.X - (MouseLocation.X * ((OldSizeX - 100) / Window.Root.AbsoluteSize.X)),
 					MouseLocation.Y - (MouseLocation.Y * (OldSizeY / Window.Root.AbsoluteSize.Y))
 				)
+				DragCurrent = Vector2.new(StartPos.X.Offset, StartPos.Y.Offset)
+				DragTarget = DragCurrent
 			end
 
 			Input.Changed:Connect(function()
 				if Input.UserInputState == Enum.UserInputState.End then
 					Dragging = false
+					if DragTarget then
+						Window.Position = UDim2.fromOffset(DragTarget.X, DragTarget.Y)
+						Window.Root.Position = Window.Position
+						PosMotor:setGoal({
+							X = Instant(DragTarget.X),
+							Y = Instant(DragTarget.Y),
+						})
+					end
 				end
 			end)
 		end
@@ -1802,16 +1818,23 @@ return function(Config)
 
 	-- Drive drag/resize on RenderStepped so the window tracks the cursor 1:1 on
 	-- every rendered frame, instead of only when an InputChanged event arrives.
-	Creator.AddSignal(RunService.RenderStepped, function()
+	Creator.AddSignal(RunService.RenderStepped, function(DeltaTime)
 		if Dragging then
 			local Current = UserInputService:GetMouseLocation()
 			local Delta = Current - MousePos
 
-			Window.Position = UDim2.fromOffset(StartPos.X.Offset + Delta.X, StartPos.Y.Offset + Delta.Y)
+			DragTarget = Vector2.new(StartPos.X.Offset + Delta.X, StartPos.Y.Offset + Delta.Y)
+
+			-- Ease the window toward the cursor so uneven frame times don't read
+			-- as jumps. Frame-rate independent.
+			local Alpha = 1 - math.exp(-DRAG_SMOOTHING * (DeltaTime or 0))
+			DragCurrent = DragCurrent + (DragTarget - DragCurrent) * Alpha
+
+			Window.Position = UDim2.fromOffset(DragCurrent.X, DragCurrent.Y)
 			Window.Root.Position = Window.Position
 			PosMotor:setGoal({
-				X = Instant(Window.Position.X.Offset),
-				Y = Instant(Window.Position.Y.Offset),
+				X = Instant(DragCurrent.X),
+				Y = Instant(DragCurrent.Y),
 			})
 
 			if Window.Maximized then
