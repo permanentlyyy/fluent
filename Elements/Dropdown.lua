@@ -240,8 +240,9 @@ function Element:New(Idx, Config)
 		Dropdown.Opened = true
 		ScrollFrame.ScrollingEnabled = false
 		DropdownHolderCanvas.Visible = true
-		if Library.DropdownBlocker then
-			Library.DropdownBlocker.Visible = true
+		local Blocker = Library.Window and Library.Window.DropdownBlocker
+		if Blocker then
+			Blocker.Visible = true
 		end
 		TweenService:Create(
 			DropdownHolderFrame,
@@ -256,7 +257,8 @@ function Element:New(Idx, Config)
 		DropdownHolderFrame.Size = UDim2.fromScale(1, 0.6)
 		DropdownHolderCanvas.Visible = false
 
-		if Library.DropdownBlocker then
+		local Blocker = Library.Window and Library.Window.DropdownBlocker
+		if Blocker then
 			local AnyOpen = false
 			for _, Other in next, Library.Options do
 				if Other and Other.Type == "Dropdown" and Other.Opened then
@@ -265,7 +267,7 @@ function Element:New(Idx, Config)
 				end
 			end
 			if not AnyOpen then
-				Library.DropdownBlocker.Visible = false
+				Blocker.Visible = false
 			end
 		end
 	end
