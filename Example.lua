@@ -4,10 +4,11 @@
 ]]
 
 local REPO = "https://raw.githubusercontent.com/permanentlyyy/fluent/main"
+local CACHE = "?v=" .. tostring(os.time())
 
-local Fluent = loadstring(game:HttpGet(REPO .. "/main.lua"))()
-local SaveManager = loadstring(game:HttpGet(REPO .. "/Addons/SaveManager.lua"))()
-local InterfaceManager = loadstring(game:HttpGet(REPO .. "/Addons/InterfaceManager.lua"))()
+local Fluent = loadstring(game:HttpGet(REPO .. "/main.lua" .. CACHE))()
+local SaveManager = loadstring(game:HttpGet(REPO .. "/Addons/SaveManager.lua" .. CACHE))()
+local InterfaceManager = loadstring(game:HttpGet(REPO .. "/Addons/InterfaceManager.lua" .. CACHE))()
 
 local Window = Fluent:CreateWindow({
 	Title = "Fluent " .. Fluent.Version,
